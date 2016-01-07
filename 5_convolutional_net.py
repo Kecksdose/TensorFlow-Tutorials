@@ -3,6 +3,12 @@ import numpy as np
 import input_data
 
 
+epochs = 20
+learning_rate_1 = 0.001
+learning_rate_2 = 0.09
+np.random.seed(1337)
+
+
 def init_weights(shape):
     return tf.Variable(tf.random_normal(shape, stddev=0.01))
 
@@ -31,7 +37,11 @@ def model(X, w, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden):
     return pyx
 
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels
+trX = mnist.train.images
+trY = mnist.train.labels
+teX = mnist.test.images
+teY = mnist.test.labels
+
 trX = trX.reshape(-1, 28, 28, 1)
 teX = teX.reshape(-1, 28, 28, 1)
 
@@ -49,22 +59,23 @@ p_keep_hidden = tf.placeholder("float")
 py_x = model(X, w, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden)
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(py_x, Y))
-train_op = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost)
+train_op = tf.train.RMSPropOptimizer(learning_rate_1,
+                                     learning_rate_2).minimize(cost)
 predict_op = tf.argmax(py_x, 1)
 
 sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
 
-for i in range(100):
+for i in range(epochs):
     for start, end in zip(range(0, len(trX), 128), range(128, len(trX), 128)):
         sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end],
                                       p_keep_conv: 0.8, p_keep_hidden: 0.5})
-    
-    test_indices = np.arange(len(teX)) # Get A Test Batch
+    # Get A Test Batch
+    test_indices = np.arange(len(teX))
     np.random.shuffle(test_indices)
     test_indices = test_indices[0:256]
-    
+
     print i, np.mean(np.argmax(teY[test_indices], axis=1) ==
                      sess.run(predict_op, feed_dict={X: teX[test_indices],
                                                      Y: teY[test_indices],
