@@ -37,5 +37,6 @@ features
 Disadvantage: Only finds features of defined size. Solution: Downsampling and
 pyramid method
 
-
+***Useful links:***
+* [ConvNets](http://cs231n.github.io/convolutional-networks/)
 
