@@ -14,6 +14,7 @@ def init_weights(shape):
 
 
 def model(X, w, w2, w3, w4, w_o, p_keep_conv, p_keep_hidden):
+    # ReLU (activation function): f(x) = max(0, x)
     l1a = tf.nn.relu(tf.nn.conv2d(X, w, [1, 1, 1, 1], 'SAME'))
     l1 = tf.nn.max_pool(l1a, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
